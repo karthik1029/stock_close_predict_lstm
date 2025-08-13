@@ -1,7 +1,7 @@
 # stock_close_predict_lstm
 
 Educational demo. **Not investment advice.**  
-Predicts the **next trading day’s close** using a simple **LSTM** trained on historical **closing prices**. Built with **Streamlit**, **TensorFlow (CPU)**, and **yfinance**. Includes batch runs (S&P 500 / Nasdaq-100 / Dow 30) and Docker support.
+Predicts the **next trading day’s close** using a simple **LSTM** trained on historical **closing prices**. Built with **Streamlit**, **TensorFlow (CPU)**, and **yfinance**. Includes batch runs (S&P 500 / Nasdaq-100 / Dow 30).
 
 ---
 
@@ -13,7 +13,7 @@ Predicts the **next trading day’s close** using a simple **LSTM** trained on h
 - **Leaderboard** of largest absolute % deltas and **CSV download**.
 - Dockerfile for one-command containerized runs.
 
-> For learning only — do not trade on this.
+> For learning — do not trade on this.
 
 ---
 
@@ -62,43 +62,57 @@ Apple Silicon: build an x86 image
 docker buildx build --platform linux/amd64 -t stock_close_predict_lstm:amd64 --load .
 ```
 
+## 🧑‍💻 Using the app
 
-# Running the App with Docker
+- **Universe:** choose **S&P 500**, **Nasdaq-100**, **Dow 30**, or upload a **CSV**.
+- **Stocks:** pick specific stocks in the **sidebar multiselect** (first 10 preselected), or use **Max stocks**.
+- **Settings:** set **History period** (2y/5y/10y), **Lookback** (days), **Train split**, **Epochs**, **Batch size**.
+- **Run** → You’ll see:
+  - **Top 15 by \|%Δ\|** (predicted vs last close)
+  - **Full table** (stock, last/pred date, last/pred close, Δ, %Δ, RMSE model vs naive)
+  - **CSV download**
 
-This guide covers two options for running the app using **Docker Desktop (GUI)** or **docker-compose**.
+### 📄 CSV format (custom universe)
+
+```text
+AAPL
+MSFT
+NVDA
+# one symbol per line; dots become dashes for Yahoo (e.g., BRK.B -> BRK-B)
+```
+
+
+## ⚙️ Design notes
+
+- **Sources:** Wikipedia via `requests` + `certifi` → parsed with `pandas.read_html`; `yfinance` fallbacks for S&P/Dow.
+- **Data:** Daily **auto-adjusted** closes from **yfinance** (Yahoo Finance).
+- **Model:** 2-layer **LSTM** → `Dense(1)`, MinMax scaling, sliding-window supervision.
+- **Baseline:** compares test **RMSE** vs “next = last value in window”.
 
 ---
 
-## **Option 1: Docker Desktop (GUI)**
+## 🧪 Troubleshooting
 
-1. **Build the Image**
-   - Open **Docker Desktop**.
-   - Go to **Builds** → **Build with Dockerfile**.
-   - **Context:** Set it to your **project folder** (the folder containing the `Dockerfile`).
-   - Click **Build**.
-
-2. **Run the Container**
-   - Go to **Images** → find your newly built image.
-   - Click **Run**.
-   - Under **Ports**, map:
-     - `8501:8501` (default), **or**
-     - `8502:8501` if port `8501` is already in use.
-   - Start the container.
+| Problem | Fix |
+| --- | --- |
+| SSL error fetching Wikipedia | Mitigated via `requests + certifi`. Ensure `certifi` is installed/updated. |
+| Port already in use | Map another port, e.g., `-p 8502:8501` → open `http://localhost:8502`. |
+| Docker “blob … input/output error” | Docker Desktop → **Troubleshoot** → **Clean / Purge data**, then rebuild. |
+| Behind corporate proxy | Set `HTTP_PROXY` / `HTTPS_PROXY` env vars when running. |
+| Batch run slow | Start with **Max stocks = 10–25**; shard externally for large universes. |
 
 ---
 
-## **Option 2: Using docker-compose (Optional)**
+## ⚠️ Limitations
 
-1. **Create `docker-compose.yml` in the project root:**
+- Uses **only closing prices**; no volume/factors/regime info.  
+- **One model per stock**; no cross-sectional learning.  
+- Simple holdout; **no walk-forward CV**.  
+- Predictions are **noisy**; not suitable for trading.
 
-   ```yaml
-   services:
-     app:
-       build: .
-       ports:
-         - "8501:8501"
-       volumes:
-         - .:/app  # optional: hot-reload local code
-       environment:
-         - PORT=8501
-   ```
+---
+
+## 🛡️ Disclaimer
+
+This is an **educational demo** and **not financial advice**.  
+Do not use the outputs for financial decisions.
