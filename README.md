@@ -1,6 +1,5 @@
 # stock_close_predict_lstm
 
-Educational demo. **Not investment advice.**  
 Predicts the **next trading day’s close** using a simple **LSTM** trained on historical **closing prices**. Built with **Streamlit**, **TensorFlow (CPU)**, and **yfinance**. Includes batch runs (S&P 500 / Nasdaq-100 / Dow 30).
 
 ---
