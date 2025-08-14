@@ -12,7 +12,6 @@ Predicts the **next trading day’s close** using a simple **LSTM** trained on h
 - **Leaderboard** of largest absolute % deltas and **CSV download**.
 - Dockerfile for one-command containerized runs.
 
-> For learning — do not trade on this.
 
 ---
 
