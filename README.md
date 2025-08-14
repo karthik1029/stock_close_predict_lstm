@@ -15,16 +15,6 @@ Predicts the **next trading day’s close** using a simple **LSTM** trained on h
 
 ---
 
-## 📦 Project structure
-stock_close_predict_lstm/
-├── app.py # Streamlit app (batch mode, “stocks” wording)
-├── requirements.txt # Pinned deps (TF CPU, pandas, etc.)
-├── Dockerfile # Containerized Streamlit app
-└── .dockerignore # Optional
-
-
----
-
 ## 🚀 Quick start (local)
 
 **Python 3.11** recommended.
